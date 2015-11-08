@@ -8,56 +8,60 @@ import (
 var Separator = string(filepath.Separator)
 
 type pattern struct {
-	path string
-	base string
+	path          string
+	base          string
+	matchingPath  string
+	hasRootPrefix bool
+	hasDirSuffix  bool
+	pathDepth     int
+}
+
+func newPattern(path, base string) pattern {
+	hasRootPrefix := path[0] == '/'
+	hasDirSuffix := path[len(path)-1] == '/'
+
+	var matchingPath string
+	var pathDepth int
+	if hasRootPrefix {
+		matchingPath = filepath.Join(base, path)
+	} else {
+		matchingPath = strings.Trim(path, "/")
+		pathDepth = strings.Count(path, "/")
+	}
+
+	return pattern{
+		path:          path,
+		base:          base,
+		matchingPath:  matchingPath,
+		hasRootPrefix: hasRootPrefix,
+		hasDirSuffix:  hasDirSuffix,
+		pathDepth:     pathDepth,
+	}
 }
 
 func (p pattern) match(path string, isDir bool) bool {
 
-	if p.hasDirSuffix() && !isDir {
+	if p.hasDirSuffix && !isDir {
 		return false
 	}
 
-	pattern := p.trimedPattern()
-
 	var match bool
-	if p.hasRootPrefix() {
-		// absolute pattern
-		match, _ = filepath.Match(filepath.Join(p.base, p.path), path)
+	if p.hasRootPrefix {
+		//absolute pattern
+		match, _ = filepath.Match(p.matchingPath, path)
 	} else {
 		// relative pattern
-		match, _ = filepath.Match(pattern, p.equalizeDepth(path))
+		match, _ = filepath.Match(p.matchingPath, p.equalizeDepth(path))
 	}
 	return match
 }
 
 func (p pattern) equalizeDepth(path string) string {
 	trimedPath := strings.TrimPrefix(path, p.base)
-	patternDepth := strings.Count(p.path, "/")
 	pathDepth := strings.Count(trimedPath, Separator)
 	start := 0
-	if diff := pathDepth - patternDepth; diff > 0 {
+	if diff := pathDepth - p.pathDepth; diff > 0 {
 		start = diff
 	}
 	return filepath.Join(strings.Split(trimedPath, Separator)[start:]...)
-}
-
-func (p pattern) prefix() string {
-	return string(p.path[0])
-}
-
-func (p pattern) suffix() string {
-	return string(p.path[len(p.path)-1])
-}
-
-func (p pattern) hasRootPrefix() bool {
-	return p.prefix() == "/"
-}
-
-func (p pattern) hasDirSuffix() bool {
-	return p.suffix() == "/"
-}
-
-func (p pattern) trimedPattern() string {
-	return strings.Trim(p.path, "/")
 }
