@@ -1,6 +1,7 @@
 package gitignore
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -64,12 +65,24 @@ func (p pattern) match(path string, isDir bool) bool {
 
 func (p pattern) equalizeDepth(path string) string {
 	trimedPath := strings.TrimPrefix(path, p.base)
-	pathDepth := strings.Count(trimedPath, Separator)
-	start := 0
-	if diff := pathDepth - p.pathDepth; diff > 0 {
-		start = diff
+	return cutLastN(trimedPath, p.pathDepth+1)
+}
+
+func cutLastN(path string, n int) string {
+	vol := filepath.VolumeName(path)
+	i := len(path) - 1
+
+	var count int
+	for i >= len(vol) {
+		if os.IsPathSeparator(path[i]) {
+			count++
+			if count >= n {
+				break
+			}
+		}
+		i--
 	}
-	return filepath.Join(strings.Split(trimedPath, Separator)[start:]...)
+	return path[i+1:]
 }
 
 func hasMeta(path string) bool {
