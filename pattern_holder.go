@@ -18,9 +18,9 @@ func newInitialPatternHolder() initialPatternHolder {
 
 func (h *initialPatternHolder) add(pattern, base string) {
 	if strings.IndexAny(pattern[0:1], initials) != -1 {
-		h.patterns.set(pattern[0], newPattern(pattern, base))
+		h.patterns.set(pattern[0], newPatternForEqualizedPath(pattern, base))
 	} else {
-		h.otherPatterns = append(h.otherPatterns, newPattern(pattern, base))
+		h.otherPatterns = append(h.otherPatterns, newPatternForEqualizedPath(pattern, base))
 	}
 }
 

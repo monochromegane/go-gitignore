@@ -8,11 +8,11 @@ import (
 var Separator = string(filepath.Separator)
 
 type pattern struct {
-	base          string
-	hasRootPrefix bool
-	hasDirSuffix  bool
-	pathDepth     int
-	matcher       pathMatcher
+	hasRootPrefix     bool
+	hasDirSuffix      bool
+	pathDepth         int
+	matcher           pathMatcher
+	onlyEqualizedPath bool
 }
 
 func newPattern(path, base string) pattern {
@@ -36,12 +36,17 @@ func newPattern(path, base string) pattern {
 	}
 
 	return pattern{
-		base:          base,
 		hasRootPrefix: hasRootPrefix,
 		hasDirSuffix:  hasDirSuffix,
 		pathDepth:     pathDepth,
 		matcher:       matcher,
 	}
+}
+
+func newPatternForEqualizedPath(path, base string) pattern {
+	pattern := newPattern(path, base)
+	pattern.onlyEqualizedPath = true
+	return pattern
 }
 
 func (p pattern) match(path string, isDir bool) bool {
@@ -51,8 +56,8 @@ func (p pattern) match(path string, isDir bool) bool {
 	}
 
 	var targetPath string
-	if p.hasRootPrefix {
-		//absolute pattern
+	if p.hasRootPrefix || p.onlyEqualizedPath {
+		// absolute pattern or only equalized path mode
 		targetPath = path
 	} else {
 		// relative pattern
@@ -62,7 +67,6 @@ func (p pattern) match(path string, isDir bool) bool {
 }
 
 func (p pattern) equalizeDepth(path string) string {
-	trimedPath := strings.TrimPrefix(path, p.base)
-	result, _ := cutLastN(trimedPath, p.pathDepth+1)
-	return result
+	equalizedPath, _ := cutLastN(path, p.pathDepth+1)
+	return equalizedPath
 }
