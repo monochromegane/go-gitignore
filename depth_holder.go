@@ -12,16 +12,19 @@ type depthPatternHolder struct {
 	order    int
 }
 
-func newDepthPatternHolder(order int) depthPatternHolder {
+func newDepthPatternHolder(order int, base string) depthPatternHolder {
 	return depthPatternHolder{
-		patterns: depthPatterns{m: map[int]initialPatternHolder{}},
-		order:    order,
+		patterns: depthPatterns{
+			m:    map[int]initialPatternHolder{},
+			base: base,
+		},
+		order: order,
 	}
 }
 
-func (h *depthPatternHolder) add(pattern, base string) {
+func (h *depthPatternHolder) add(pattern string) {
 	count := strings.Count(strings.TrimPrefix(pattern, "/"), "/")
-	h.patterns.set(count+1, pattern, base)
+	h.patterns.set(count+1, pattern)
 }
 
 func (h depthPatternHolder) match(path string, isDir bool) bool {
@@ -56,15 +59,16 @@ func (h depthPatternHolder) match(path string, isDir bool) bool {
 }
 
 type depthPatterns struct {
-	m map[int]initialPatternHolder
+	m    map[int]initialPatternHolder
+	base string
 }
 
-func (p *depthPatterns) set(depth int, pattern, base string) {
+func (p *depthPatterns) set(depth int, pattern string) {
 	if ps, ok := p.m[depth]; ok {
-		ps.add(pattern, base)
+		ps.add(pattern)
 	} else {
-		holder := newInitialPatternHolder()
-		holder.add(pattern, base)
+		holder := newInitialPatternHolder(p.base)
+		holder.add(pattern)
 		p.m[depth] = holder
 	}
 }
@@ -72,12 +76,4 @@ func (p *depthPatterns) set(depth int, pattern, base string) {
 func (p depthPatterns) get(depth int) (initialPatternHolder, bool) {
 	patterns, ok := p.m[depth]
 	return patterns, ok
-}
-
-func (p depthPatterns) keys() []int {
-	keys := []int{}
-	for k, _ := range p.m {
-		keys = append(keys, k)
-	}
-	return keys
 }

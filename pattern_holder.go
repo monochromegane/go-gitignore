@@ -7,20 +7,22 @@ const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 type initialPatternHolder struct {
 	patterns      initialPatterns
 	otherPatterns patterns
+	base          string
 }
 
-func newInitialPatternHolder() initialPatternHolder {
+func newInitialPatternHolder(base string) initialPatternHolder {
 	return initialPatternHolder{
 		patterns:      initialPatterns{m: map[byte]patterns{}},
 		otherPatterns: patterns{},
+		base:          base,
 	}
 }
 
-func (h *initialPatternHolder) add(pattern, base string) {
+func (h *initialPatternHolder) add(pattern string) {
 	if strings.IndexAny(pattern[0:1], initials) != -1 {
-		h.patterns.set(pattern[0], newPatternForEqualizedPath(pattern, base))
+		h.patterns.set(pattern[0], newPatternForEqualizedPath(pattern, h.base))
 	} else {
-		h.otherPatterns = append(h.otherPatterns, newPatternForEqualizedPath(pattern, base))
+		h.otherPatterns = append(h.otherPatterns, newPatternForEqualizedPath(pattern, h.base))
 	}
 }
 

@@ -13,9 +13,8 @@ type IgnoreMatcher interface {
 }
 
 type gitIgnore struct {
-	ignorePatterns patterns
-	acceptPatterns patterns
-	path           string
+	ignorePatterns indexedPatterns
+	acceptPatterns indexedPatterns
 }
 
 func NewGitIgnore(gitignore string) (IgnoreMatcher, error) {
@@ -29,7 +28,10 @@ func NewGitIgnore(gitignore string) (IgnoreMatcher, error) {
 }
 
 func newGitIgnore(path string, r io.Reader) gitIgnore {
-	g := gitIgnore{path: path}
+	g := gitIgnore{
+		ignorePatterns: newIndexedPatterns(path),
+		acceptPatterns: newIndexedPatterns(path),
+	}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.Trim(scanner.Text(), " ")
@@ -38,17 +40,16 @@ func newGitIgnore(path string, r io.Reader) gitIgnore {
 		}
 
 		if strings.HasPrefix(line, "!") {
-			g.acceptPatterns = append(g.acceptPatterns,
-				newPattern(strings.TrimPrefix(line, "!"), g.path))
+			g.acceptPatterns.add(strings.TrimPrefix(line, "!"))
 		} else {
-			g.ignorePatterns = append(g.ignorePatterns, newPattern(line, g.path))
+			g.ignorePatterns.add(line)
 		}
 	}
 	return g
 }
 
 func (g gitIgnore) Match(path string, isDir bool) bool {
-	if match := g.acceptPatterns.match(path, isDir); match {
+	if g.acceptPatterns.match(path, isDir) {
 		return false
 	}
 	return g.ignorePatterns.match(path, isDir)
