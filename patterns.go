@@ -1,9 +1,15 @@
 package gitignore
 
-type patterns []pattern
+type patterns struct {
+	patterns []pattern
+}
+
+func (ps *patterns) add(pattern pattern) {
+	ps.patterns = append(ps.patterns, pattern)
+}
 
 func (ps patterns) match(path string, isDir bool) bool {
-	for _, p := range ps {
+	for _, p := range ps.patterns {
 		if match := p.match(path, isDir); match {
 			return true
 		}

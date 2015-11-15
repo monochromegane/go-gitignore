@@ -21,7 +21,7 @@ func (h *initialPatternHolder) add(pattern string) {
 	if strings.IndexAny(trimedPattern[0:1], initials) != -1 {
 		h.patterns.set(trimedPattern[0], newPatternForEqualizedPath(pattern))
 	} else {
-		h.otherPatterns = append(h.otherPatterns, newPatternForEqualizedPath(pattern))
+		h.otherPatterns.add(newPatternForEqualizedPath(pattern))
 	}
 }
 
@@ -43,9 +43,12 @@ type initialPatterns struct {
 
 func (p *initialPatterns) set(initial byte, pattern pattern) {
 	if ps, ok := p.m[initial]; ok {
-		p.m[initial] = append(ps, pattern)
+		ps.add(pattern)
 	} else {
-		p.m[initial] = patterns{pattern}
+		patterns := patterns{}
+		patterns.add(pattern)
+		p.m[initial] = patterns
+
 	}
 }
 

@@ -13,8 +13,8 @@ type IgnoreMatcher interface {
 }
 
 type gitIgnore struct {
-	ignorePatterns indexedPatterns
-	acceptPatterns indexedPatterns
+	ignorePatterns scanStrategy
+	acceptPatterns scanStrategy
 	path           string
 }
 
@@ -30,8 +30,8 @@ func NewGitIgnore(gitignore string) (IgnoreMatcher, error) {
 
 func newGitIgnore(path string, r io.Reader) gitIgnore {
 	g := gitIgnore{
-		ignorePatterns: newIndexedPatterns(),
-		acceptPatterns: newIndexedPatterns(),
+		ignorePatterns: newIndexScanPatterns(),
+		acceptPatterns: newIndexScanPatterns(),
 		path:           path,
 	}
 	scanner := bufio.NewScanner(r)
