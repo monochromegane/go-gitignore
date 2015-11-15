@@ -7,26 +7,28 @@ const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 type initialPatternHolder struct {
 	patterns      initialPatterns
 	otherPatterns patterns
-	base          string
 }
 
-func newInitialPatternHolder(base string) initialPatternHolder {
+func newInitialPatternHolder() initialPatternHolder {
 	return initialPatternHolder{
 		patterns:      initialPatterns{m: map[byte]patterns{}},
 		otherPatterns: patterns{},
-		base:          base,
 	}
 }
 
 func (h *initialPatternHolder) add(pattern string) {
-	if strings.IndexAny(pattern[0:1], initials) != -1 {
-		h.patterns.set(pattern[0], newPatternForEqualizedPath(pattern, h.base))
+	trimedPattern := strings.TrimPrefix(pattern, "/")
+	if strings.IndexAny(trimedPattern[0:1], initials) != -1 {
+		h.patterns.set(trimedPattern[0], newPatternForEqualizedPath(pattern))
 	} else {
-		h.otherPatterns = append(h.otherPatterns, newPatternForEqualizedPath(pattern, h.base))
+		h.otherPatterns = append(h.otherPatterns, newPatternForEqualizedPath(pattern))
 	}
 }
 
 func (h initialPatternHolder) match(path string, isDir bool) bool {
+	if h.patterns.size() == 0 {
+		return false
+	}
 	if patterns, ok := h.patterns.get(path[0]); ok {
 		if patterns.match(path, isDir) {
 			return true
@@ -50,4 +52,8 @@ func (p *initialPatterns) set(initial byte, pattern pattern) {
 func (p initialPatterns) get(initial byte) (patterns, bool) {
 	patterns, ok := p.m[initial]
 	return patterns, ok
+}
+
+func (p initialPatterns) size() int {
+	return len(p.m)
 }

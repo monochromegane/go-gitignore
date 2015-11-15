@@ -15,6 +15,7 @@ type IgnoreMatcher interface {
 type gitIgnore struct {
 	ignorePatterns indexedPatterns
 	acceptPatterns indexedPatterns
+	path           string
 }
 
 func NewGitIgnore(gitignore string) (IgnoreMatcher, error) {
@@ -29,8 +30,9 @@ func NewGitIgnore(gitignore string) (IgnoreMatcher, error) {
 
 func newGitIgnore(path string, r io.Reader) gitIgnore {
 	g := gitIgnore{
-		ignorePatterns: newIndexedPatterns(path),
-		acceptPatterns: newIndexedPatterns(path),
+		ignorePatterns: newIndexedPatterns(),
+		acceptPatterns: newIndexedPatterns(),
+		path:           path,
 	}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
@@ -49,8 +51,13 @@ func newGitIgnore(path string, r io.Reader) gitIgnore {
 }
 
 func (g gitIgnore) Match(path string, isDir bool) bool {
-	if g.acceptPatterns.match(path, isDir) {
+	relativePath, err := filepath.Rel(g.path, path)
+	if err != nil {
 		return false
 	}
-	return g.ignorePatterns.match(path, isDir)
+
+	if g.acceptPatterns.match(relativePath, isDir) {
+		return false
+	}
+	return g.ignorePatterns.match(relativePath, isDir)
 }

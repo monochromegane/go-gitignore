@@ -15,20 +15,17 @@ type pattern struct {
 	onlyEqualizedPath bool
 }
 
-func newPattern(path, base string) pattern {
+func newPattern(path string) pattern {
 	hasRootPrefix := path[0] == '/'
 	hasDirSuffix := path[len(path)-1] == '/'
 
-	var matchingPath string
 	var pathDepth int
-	if hasRootPrefix {
-		matchingPath = filepath.Join(base, path)
-	} else {
-		matchingPath = strings.Trim(path, "/")
+	if !hasRootPrefix {
 		pathDepth = strings.Count(path, "/")
 	}
 
 	var matcher pathMatcher
+	matchingPath := strings.Trim(path, "/")
 	if hasMeta(path) {
 		matcher = filepathMatcher{path: matchingPath}
 	} else {
@@ -43,8 +40,8 @@ func newPattern(path, base string) pattern {
 	}
 }
 
-func newPatternForEqualizedPath(path, base string) pattern {
-	pattern := newPattern(path, base)
+func newPatternForEqualizedPath(path string) pattern {
+	pattern := newPattern(path)
 	pattern.onlyEqualizedPath = true
 	return pattern
 }

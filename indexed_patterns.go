@@ -7,10 +7,10 @@ type indexedPatterns struct {
 	relative depthPatternHolder
 }
 
-func newIndexedPatterns(base string) indexedPatterns {
+func newIndexedPatterns() indexedPatterns {
 	return indexedPatterns{
-		absolute: newDepthPatternHolder(asc, base),
-		relative: newDepthPatternHolder(desc, base),
+		absolute: newDepthPatternHolder(asc),
+		relative: newDepthPatternHolder(desc),
 	}
 }
 
