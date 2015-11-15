@@ -7,14 +7,14 @@ type indexScanPatterns struct {
 	relative depthPatternHolder
 }
 
-func newIndexScanPatterns() indexScanPatterns {
-	return indexScanPatterns{
+func newIndexScanPatterns() *indexScanPatterns {
+	return &indexScanPatterns{
 		absolute: newDepthPatternHolder(asc),
 		relative: newDepthPatternHolder(desc),
 	}
 }
 
-func (ps indexScanPatterns) add(pattern string) {
+func (ps *indexScanPatterns) add(pattern string) {
 	if strings.HasPrefix(pattern, "/") {
 		ps.absolute.add(pattern)
 	} else {

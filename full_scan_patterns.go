@@ -8,14 +8,14 @@ type fullScanPatterns struct {
 	relative patterns
 }
 
-func newFullScanPatterns() fullScanPatterns {
-	return fullScanPatterns{
+func newFullScanPatterns() *fullScanPatterns {
+	return &fullScanPatterns{
 		absolute: patterns{},
 		relative: patterns{},
 	}
 }
 
-func (ps fullScanPatterns) add(pattern string) {
+func (ps *fullScanPatterns) add(pattern string) {
 	if strings.HasPrefix(pattern, "/") {
 		ps.absolute.add(newPattern(pattern))
 	} else {
