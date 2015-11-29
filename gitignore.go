@@ -18,8 +18,14 @@ type gitIgnore struct {
 	path           string
 }
 
-func NewGitIgnore(gitignore string) (IgnoreMatcher, error) {
-	path := filepath.Dir(gitignore)
+func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
+	var path string
+	if len(base) > 0 {
+		path = base[0]
+	} else {
+		path = filepath.Dir(gitignore)
+	}
+
 	file, err := os.Open(gitignore)
 	if err != nil {
 		return nil, err
