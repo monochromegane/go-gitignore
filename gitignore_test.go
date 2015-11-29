@@ -29,6 +29,7 @@ func TestMatch(t *testing.T) {
 		assert{[]string{"dir"}, file{"dir", true}, true},
 		assert{[]string{"dir/"}, file{"dir", true}, true},
 		assert{[]string{"dir/"}, file{"dir", false}, false},
+		assert{[]string{"dir1/dir2/"}, file{"dir1/dir2", true}, true},
 		assert{[]string{"/a.txt"}, file{"a.txt", false}, true},
 		assert{[]string{"/dir/a.txt"}, file{"dir/a.txt", false}, true},
 		assert{[]string{"/dir1/a.txt"}, file{"dir/dir1/a.txt", false}, false},

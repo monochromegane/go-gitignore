@@ -41,11 +41,7 @@ func (h depthPatternHolder) match(path string, isDir bool) bool {
 			}
 		} else {
 			part, isLast = cutLastN(path, depth)
-			if depth == 1 {
-				isDirCurrent = isDir
-			} else {
-				isDirCurrent = false
-			}
+			isDirCurrent = isDir
 		}
 		if patterns, ok := h.patterns.get(depth); ok {
 			if patterns.match(part, isDirCurrent) {
