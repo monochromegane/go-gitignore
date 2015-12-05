@@ -30,6 +30,7 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
 	return NewGitIgnoreFromReader(path, file), nil
 }
