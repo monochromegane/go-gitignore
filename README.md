@@ -1,4 +1,4 @@
-# go-gitignore
+# go-gitignore [![Build Status](https://travis-ci.org/monochromegane/go-gitignore.svg)](https://travis-ci.org/monochromegane/go-gitignore)
 
 A fast gitignore matching library for Go.
 
