@@ -2,7 +2,7 @@ package gitignore
 
 import "strings"
 
-const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ."
 
 type initialPatternHolder struct {
 	patterns      initialPatterns
