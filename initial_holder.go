@@ -6,13 +6,13 @@ const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 type initialPatternHolder struct {
 	patterns      initialPatterns
-	otherPatterns patterns
+	otherPatterns *patterns
 }
 
 func newInitialPatternHolder() initialPatternHolder {
 	return initialPatternHolder{
-		patterns:      initialPatterns{m: map[byte]patterns{}},
-		otherPatterns: patterns{},
+		patterns:      initialPatterns{m: map[byte]*patterns{}},
+		otherPatterns: &patterns{},
 	}
 }
 
@@ -38,21 +38,21 @@ func (h initialPatternHolder) match(path string, isDir bool) bool {
 }
 
 type initialPatterns struct {
-	m map[byte]patterns
+	m map[byte]*patterns
 }
 
 func (p *initialPatterns) set(initial byte, pattern pattern) {
 	if ps, ok := p.m[initial]; ok {
 		ps.add(pattern)
 	} else {
-		patterns := patterns{}
+		patterns := &patterns{}
 		patterns.add(pattern)
 		p.m[initial] = patterns
 
 	}
 }
 
-func (p initialPatterns) get(initial byte) (patterns, bool) {
+func (p initialPatterns) get(initial byte) (*patterns, bool) {
 	patterns, ok := p.m[initial]
 	return patterns, ok
 }
