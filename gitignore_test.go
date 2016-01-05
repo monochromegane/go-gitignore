@@ -19,11 +19,13 @@ type file struct {
 func TestMatch(t *testing.T) {
 	asserts := []assert{
 		assert{[]string{"a.txt"}, file{"a.txt", false}, true},
+		assert{[]string{"*.txt"}, file{"a.txt", false}, true},
 		assert{[]string{"dir/a.txt"}, file{"dir/a.txt", false}, true},
 		assert{[]string{"dir/*.txt"}, file{"dir/a.txt", false}, true},
 		assert{[]string{"dir2/a.txt"}, file{"dir1/dir2/a.txt", false}, true},
 		assert{[]string{"dir3/a.txt"}, file{"dir1/dir2/dir3/a.txt", false}, true},
 		assert{[]string{"a.txt"}, file{"dir/a.txt", false}, true},
+		assert{[]string{"*.txt"}, file{"dir/a.txt", false}, true},
 		assert{[]string{"a.txt"}, file{"dir1/dir2/a.txt", false}, true},
 		assert{[]string{"dir2/a.txt"}, file{"dir1/dir2/a.txt", false}, true},
 		assert{[]string{"dir"}, file{"dir", true}, true},
