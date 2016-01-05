@@ -2,7 +2,7 @@ package gitignore
 
 import "strings"
 
-const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.*"
+const initials = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ."
 
 type initialPatternHolder struct {
 	patterns      initialPatterns
@@ -26,7 +26,7 @@ func (h *initialPatternHolder) add(pattern string) {
 }
 
 func (h initialPatternHolder) match(path string, isDir bool) bool {
-	if h.patterns.size() == 0 {
+	if h.patterns.size() == 0 && h.otherPatterns.size() == 0 {
 		return false
 	}
 	if patterns, ok := h.patterns.get(path[0]); ok {
