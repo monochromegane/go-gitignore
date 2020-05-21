@@ -47,6 +47,9 @@ func NewGitIgnoreFromReader(path string, r io.Reader) gitIgnore {
 		if len(line) == 0 || strings.HasPrefix(line, "#") {
 			continue
 		}
+		if strings.HasPrefix(line, `\#`) {
+			line = strings.TrimPrefix(line, `\`)
+		}
 
 		if strings.HasPrefix(line, "!") {
 			g.acceptPatterns.add(strings.TrimPrefix(line, "!"))
