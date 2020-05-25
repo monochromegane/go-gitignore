@@ -1,7 +1,6 @@
 language: go
 go:
-  - 1.5.1
-  - release
-  - tip
+  - 1.14.x
+  - master
 script:
   - go test -v ./...
