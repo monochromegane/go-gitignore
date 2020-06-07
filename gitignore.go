@@ -12,6 +12,12 @@ type IgnoreMatcher interface {
 	Match(path string, isDir bool) bool
 }
 
+type DummyIgnoreMatcher bool
+
+func (d DummyIgnoreMatcher) Match(path string, isDir bool) bool {
+	return bool(d)
+}
+
 type gitIgnore struct {
 	ignorePatterns scanStrategy
 	acceptPatterns scanStrategy
@@ -28,7 +34,7 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 
 	file, err := os.Open(gitignore)
 	if err != nil {
-		return nil, err
+		return DummyIgnoreMatcher(false), err
 	}
 	defer file.Close()
 
