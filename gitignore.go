@@ -41,7 +41,7 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 	return NewGitIgnoreFromReader(path, file), nil
 }
 
-func NewGitIgnoreFromReader(path string, r io.Reader) gitIgnore {
+func NewGitIgnoreFromReader(path string, r io.Reader) IgnoreMatcher {
 	g := gitIgnore{
 		ignorePatterns: newIndexScanPatterns(),
 		acceptPatterns: newIndexScanPatterns(),
