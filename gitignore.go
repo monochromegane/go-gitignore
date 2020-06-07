@@ -34,7 +34,7 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 
 	file, err := os.Open(gitignore)
 	if err != nil {
-		return DummyIgnoreMatcher(false), err
+		return DummyIgnoreMatcher(true), err
 	}
 	defer file.Close()
 
