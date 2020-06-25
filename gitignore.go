@@ -12,6 +12,12 @@ type IgnoreMatcher interface {
 	Match(path string, isDir bool) bool
 }
 
+type DummyIgnoreMatcher bool
+
+func (d DummyIgnoreMatcher) Match(path string, isDir bool) bool {
+	return bool(d)
+}
+
 type gitIgnore struct {
 	ignorePatterns scanStrategy
 	acceptPatterns scanStrategy
@@ -35,7 +41,7 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 	return NewGitIgnoreFromReader(path, file), nil
 }
 
-func NewGitIgnoreFromReader(path string, r io.Reader) gitIgnore {
+func NewGitIgnoreFromReader(path string, r io.Reader) IgnoreMatcher {
 	g := gitIgnore{
 		ignorePatterns: newIndexScanPatterns(),
 		acceptPatterns: newIndexScanPatterns(),
