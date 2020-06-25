@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
@@ -66,9 +65,7 @@ func (g gitIgnore) Match(path string, isDir bool) bool {
 	if err != nil {
 		return false
 	}
-	if runtime.GOOS == "windows" {
-		relativePath = strings.Replace(relativePath, "\\", "/", -1)
-	}
+	relativePath = filepath.ToSlash(relativePath)
 
 	if g.acceptPatterns.match(relativePath, isDir) {
 		return false
