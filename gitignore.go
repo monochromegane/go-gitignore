@@ -71,6 +71,7 @@ func (g gitIgnore) Match(path string, isDir bool) bool {
 	if err != nil {
 		return false
 	}
+	relativePath = filepath.ToSlash(relativePath)
 
 	if g.acceptPatterns.match(relativePath, isDir) {
 		return false
