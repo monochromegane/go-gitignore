@@ -1,6 +1,9 @@
 package gitignore
 
 import (
+	"io/ioutil"
+	"os"
+	"strings"
 	"testing"
 )
 
@@ -13,6 +16,24 @@ type assert struct {
 type file struct {
 	path  string
 	isDir bool
+}
+
+func TestFromFile(t *testing.T) {
+	fp, err := ioutil.TempFile("", "")
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.Remove(fp.Name())
+	lines := []string{"a.txt", "b.txt"}
+	_, _ = fp.WriteString(strings.Join(lines, "\n"))
+	_, err = NewGitIgnore(fp.Name())
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = NewGitIgnore(fp.Name(), ".")
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestMatch(t *testing.T) {
