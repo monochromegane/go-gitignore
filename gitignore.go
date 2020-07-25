@@ -27,7 +27,7 @@ type gitIgnore struct {
 	path           string
 }
 
-func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
+func FromFile(gitignore string, base ...string) (IgnoreMatcher, error) {
 	var path string
 	if len(base) > 0 {
 		path = base[0]
@@ -41,20 +41,20 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 	}
 	defer file.Close()
 
-	return NewGitIgnoreFromReader(path, file), nil
+	return FromReader(path, file), nil
 }
 
-func NewGitIgnoreFromReader(path string, r io.Reader) IgnoreMatcher {
+func FromReader(path string, r io.Reader) IgnoreMatcher {
 	scanner := bufio.NewScanner(r)
 	lines := make([]string, 0)
 	for scanner.Scan() {
 		line := strings.Trim(scanner.Text(), " ")
 		lines = append(lines, line)
 	}
-	return NewGitIgnoreFromLines(path, lines)
+	return FromLines(path, lines)
 }
 
-func NewGitIgnoreFromLines(path string, lines []string) IgnoreMatcher {
+func FromLines(path string, lines []string) IgnoreMatcher {
 	g := gitIgnore{
 		ignorePatterns: newIndexScanPatterns(),
 		acceptPatterns: newIndexScanPatterns(),
