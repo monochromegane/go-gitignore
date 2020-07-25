@@ -42,21 +42,28 @@ func NewGitIgnore(gitignore string, base ...string) (IgnoreMatcher, error) {
 }
 
 func NewGitIgnoreFromReader(path string, r io.Reader) IgnoreMatcher {
+	scanner := bufio.NewScanner(r)
+	lines := make([]string, 0)
+	for scanner.Scan() {
+		line := strings.Trim(scanner.Text(), " ")
+		lines = append(lines, line)
+	}
+	return NewGitIgnoreFromLines(path, lines)
+}
+
+func NewGitIgnoreFromLines(path string, lines []string) IgnoreMatcher {
 	g := gitIgnore{
 		ignorePatterns: newIndexScanPatterns(),
 		acceptPatterns: newIndexScanPatterns(),
 		path:           path,
 	}
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		line := strings.Trim(scanner.Text(), " ")
+	for _, line := range lines {
 		if len(line) == 0 || strings.HasPrefix(line, "#") {
 			continue
 		}
 		if strings.HasPrefix(line, `\#`) {
 			line = strings.TrimPrefix(line, `\`)
 		}
-
 		if strings.HasPrefix(line, "!") {
 			g.acceptPatterns.add(strings.TrimPrefix(line, "!"))
 		} else {
