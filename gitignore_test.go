@@ -18,7 +18,7 @@ type file struct {
 	isDir bool
 }
 
-func TestFromFile(t *testing.T) {
+func TestNewFromFile(t *testing.T) {
 	fp, err := ioutil.TempFile("", "")
 	if err != nil {
 		t.Error(err)
@@ -26,11 +26,11 @@ func TestFromFile(t *testing.T) {
 	defer os.Remove(fp.Name())
 	lines := []string{"a.txt", "b.txt"}
 	_, _ = fp.WriteString(strings.Join(lines, "\n"))
-	_, err = FromFile(fp.Name())
+	_, err = NewFromFile(fp.Name())
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = FromFile(fp.Name(), ".")
+	_, err = NewFromFile(fp.Name(), ".")
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,8 +51,8 @@ func TestCombine(t *testing.T) {
 		file{"foo.txt", false}:   false,
 	}
 	combine := Combine(
-		FromLines(".", []string{".DS_Store"}),
-		FromLines(".", []string{"!/foo.txt"}),
+		NewFromLines(".", []string{".DS_Store"}),
+		NewFromLines(".", []string{"!/foo.txt"}),
 	)
 	for file, expect := range asserts {
 		result := combine.Match(file.path, file.isDir)
@@ -90,7 +90,7 @@ func TestMatch(t *testing.T) {
 	}
 
 	for _, assert := range asserts {
-		gi := FromLines(".", assert.patterns)
+		gi := NewFromLines(".", assert.patterns)
 		result := gi.Match(assert.file.path, assert.file.isDir)
 		if result != assert.expect {
 			t.Errorf("Match should return %t, got %t on %v", assert.expect, result, assert)

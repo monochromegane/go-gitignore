@@ -27,7 +27,20 @@ type gitIgnore struct {
 	path           string
 }
 
-func FromFile(pattern string, base ...string) (matcher IgnoreMatcher, err error) {
+func (g *gitIgnore) Match(path string, isDir bool) bool {
+	relativePath, err := filepath.Rel(g.path, path)
+	if err != nil {
+		return false
+	}
+	relativePath = filepath.ToSlash(relativePath)
+
+	if g.acceptPatterns.match(relativePath, isDir) {
+		return false
+	}
+	return g.ignorePatterns.match(relativePath, isDir)
+}
+
+func NewFromFile(pattern string, base ...string) (matcher IgnoreMatcher, err error) {
 	path := filepath.Dir(pattern)
 	if base != nil {
 		path = base[0]
@@ -35,22 +48,22 @@ func FromFile(pattern string, base ...string) (matcher IgnoreMatcher, err error)
 	file, err := os.Open(pattern)
 	if err == nil {
 		defer file.Close()
-		matcher = FromReader(path, file)
+		matcher = NewFromReader(path, file)
 	}
 	return
 }
 
-func FromReader(path string, r io.Reader) IgnoreMatcher {
+func NewFromReader(path string, r io.Reader) IgnoreMatcher {
 	scanner := bufio.NewScanner(r)
 	lines := make([]string, 0)
 	for scanner.Scan() {
 		lines = append(lines, strings.TrimSpace(scanner.Text()))
 	}
-	return FromLines(path, lines)
+	return NewFromLines(path, lines)
 }
 
-func FromLines(path string, lines []string) IgnoreMatcher {
-	g := gitIgnore{
+func NewFromLines(path string, lines []string) IgnoreMatcher {
+	matcher := &gitIgnore{
 		ignorePatterns: newIndexScanPatterns(),
 		acceptPatterns: newIndexScanPatterns(),
 		path:           path,
@@ -63,12 +76,12 @@ func FromLines(path string, lines []string) IgnoreMatcher {
 			line = line[1:]
 		}
 		if line[0] == '!' {
-			g.acceptPatterns.add(line[1:])
+			matcher.acceptPatterns.add(line[1:])
 		} else {
-			g.ignorePatterns.add(line)
+			matcher.ignorePatterns.add(line)
 		}
 	}
-	return g
+	return matcher
 }
 
 func Combine(matchers ...IgnoreMatcher) IgnoreMatcher {
@@ -80,17 +93,4 @@ func Combine(matchers ...IgnoreMatcher) IgnoreMatcher {
 		}
 		return false
 	})
-}
-
-func (g gitIgnore) Match(path string, isDir bool) bool {
-	relativePath, err := filepath.Rel(g.path, path)
-	if err != nil {
-		return false
-	}
-	relativePath = filepath.ToSlash(relativePath)
-
-	if g.acceptPatterns.match(relativePath, isDir) {
-		return false
-	}
-	return g.ignorePatterns.match(relativePath, isDir)
 }
