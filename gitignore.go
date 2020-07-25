@@ -12,11 +12,14 @@ type IgnoreMatcher interface {
 	Match(path string, isDir bool) bool
 }
 
-type DummyIgnoreMatcher bool
+type IgnoreMatcherFn func(path string, isDir bool) bool
 
-func (d DummyIgnoreMatcher) Match(path string, isDir bool) bool {
-	return bool(d)
+func (m IgnoreMatcherFn) Match(path string, isDir bool) bool {
+	return m(path, isDir)
 }
+
+var AllowedMatcher = IgnoreMatcherFn(func(string, bool) bool { return false })
+var IgnoredMatcher = IgnoreMatcherFn(func(string, bool) bool { return true })
 
 type gitIgnore struct {
 	ignorePatterns scanStrategy
@@ -71,6 +74,17 @@ func NewGitIgnoreFromLines(path string, lines []string) IgnoreMatcher {
 		}
 	}
 	return g
+}
+
+func Combine(matchers ...IgnoreMatcher) IgnoreMatcher {
+	return IgnoreMatcherFn(func(path string, isDir bool) bool {
+		for _, matcher := range matchers {
+			if matcher.Match(path, isDir) {
+				return true
+			}
+		}
+		return false
+	})
 }
 
 func (g gitIgnore) Match(path string, isDir bool) bool {

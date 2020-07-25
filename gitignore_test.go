@@ -36,6 +36,32 @@ func TestFromFile(t *testing.T) {
 	}
 }
 
+func TestDummyMatcher(t *testing.T) {
+	if AllowedMatcher.Match("", false) {
+		t.Error("AllowedMatcher not expected")
+	}
+	if !IgnoredMatcher.Match("", false) {
+		t.Error("IgnoredMatcher not expected")
+	}
+}
+
+func TestCombine(t *testing.T) {
+	asserts := map[file]bool{
+		file{".DS_Store", false}: true,
+		file{"foo.txt", false}:   false,
+	}
+	combine := Combine(
+		NewGitIgnoreFromLines(".", []string{".DS_Store"}),
+		NewGitIgnoreFromLines(".", []string{"!/foo.txt"}),
+	)
+	for file, expect := range asserts {
+		result := combine.Match(file.path, file.isDir)
+		if result != expect {
+			t.Errorf("Match should return %t, got %t", expect, result)
+		}
+	}
+}
+
 func TestMatch(t *testing.T) {
 	asserts := []assert{
 		{[]string{"a.txt"}, file{"a.txt", false}, true},
