@@ -27,29 +27,24 @@ type gitIgnore struct {
 	path           string
 }
 
-func FromFile(gitignore string, base ...string) (IgnoreMatcher, error) {
-	var path string
-	if len(base) > 0 {
+func FromFile(pattern string, base ...string) (matcher IgnoreMatcher, err error) {
+	path := filepath.Dir(pattern)
+	if base != nil {
 		path = base[0]
-	} else {
-		path = filepath.Dir(gitignore)
 	}
-
-	file, err := os.Open(gitignore)
-	if err != nil {
-		return nil, err
+	file, err := os.Open(pattern)
+	if err == nil {
+		defer file.Close()
+		matcher = FromReader(path, file)
 	}
-	defer file.Close()
-
-	return FromReader(path, file), nil
+	return
 }
 
 func FromReader(path string, r io.Reader) IgnoreMatcher {
 	scanner := bufio.NewScanner(r)
 	lines := make([]string, 0)
 	for scanner.Scan() {
-		line := strings.Trim(scanner.Text(), " ")
-		lines = append(lines, line)
+		lines = append(lines, strings.TrimSpace(scanner.Text()))
 	}
 	return FromLines(path, lines)
 }
@@ -61,14 +56,14 @@ func FromLines(path string, lines []string) IgnoreMatcher {
 		path:           path,
 	}
 	for _, line := range lines {
-		if len(line) == 0 || strings.HasPrefix(line, "#") {
+		if len(line) == 0 || line[0] == '#' {
 			continue
 		}
-		if strings.HasPrefix(line, `\#`) {
-			line = strings.TrimPrefix(line, `\`)
+		if len(line) > 2 && line[:2] == `\#` {
+			line = line[1:]
 		}
-		if strings.HasPrefix(line, "!") {
-			g.acceptPatterns.add(strings.TrimPrefix(line, "!"))
+		if line[0] == '!' {
+			g.acceptPatterns.add(line[1:])
 		} else {
 			g.ignorePatterns.add(line)
 		}
