@@ -42,7 +42,7 @@ func (g *gitIgnore) Match(path string, isDir bool) bool {
 func NewFromFile(pattern string, base ...string) (matcher IgnoreMatcher, err error) {
 	path := filepath.Dir(pattern)
 	if base != nil {
-		path = base[0]
+		path = filepath.Join(base...)
 	}
 	file, err := os.Open(pattern)
 	if err == nil {
