@@ -12,14 +12,14 @@ type IgnoreMatcher interface {
 	Match(path string, isDir bool) bool
 }
 
-type IgnoreMatcherFn func(path string, isDir bool) bool
+type IgnoreMatcherFunc func(path string, isDir bool) bool
 
-func (m IgnoreMatcherFn) Match(path string, isDir bool) bool {
+func (m IgnoreMatcherFunc) Match(path string, isDir bool) bool {
 	return m(path, isDir)
 }
 
-var AllowedMatcher = IgnoreMatcherFn(func(string, bool) bool { return false })
-var IgnoredMatcher = IgnoreMatcherFn(func(string, bool) bool { return true })
+var AllowedMatcher = IgnoreMatcherFunc(func(string, bool) bool { return false })
+var IgnoredMatcher = IgnoreMatcherFunc(func(string, bool) bool { return true })
 
 type gitIgnore struct {
 	ignorePatterns scanStrategy
@@ -28,16 +28,15 @@ type gitIgnore struct {
 }
 
 func (g *gitIgnore) Match(path string, isDir bool) bool {
-	relativePath, err := filepath.Rel(g.path, path)
+	path, err := filepath.Rel(g.path, path)
 	if err != nil {
 		return false
 	}
-	relativePath = filepath.ToSlash(relativePath)
-
-	if g.acceptPatterns.match(relativePath, isDir) {
+	path = filepath.ToSlash(path)
+	if g.acceptPatterns.match(path, isDir) {
 		return false
 	}
-	return g.ignorePatterns.match(relativePath, isDir)
+	return g.ignorePatterns.match(path, isDir)
 }
 
 func NewFromFile(pattern string, base ...string) (matcher IgnoreMatcher, err error) {
@@ -85,7 +84,7 @@ func NewFromLines(path string, lines []string) IgnoreMatcher {
 }
 
 func Combine(matchers ...IgnoreMatcher) IgnoreMatcher {
-	return IgnoreMatcherFn(func(path string, isDir bool) bool {
+	return IgnoreMatcherFunc(func(path string, isDir bool) bool {
 		for _, matcher := range matchers {
 			if matcher.Match(path, isDir) {
 				return true
