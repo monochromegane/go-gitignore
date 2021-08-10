@@ -41,6 +41,7 @@ func TestMatch(t *testing.T) {
 		assert{[]string{"dir/*.txt", "!dir/b.txt"}, file{"dir/b.txt", false}, false},
 		assert{[]string{"dir/*.txt", "!/b.txt"}, file{"dir/b.txt", false}, true},
 		assert{[]string{`\#a.txt`}, file{"#a.txt", false}, true},
+		assert{[]string{`**/__test__/**`}, file{"dir1/dir2/__test__/dir3/b.txt", false}, true},
 	}
 
 	for _, assert := range asserts {
