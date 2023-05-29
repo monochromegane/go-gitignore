@@ -18,7 +18,7 @@ func newInitialPatternHolder() initialPatternHolder {
 
 func (h *initialPatternHolder) add(pattern string) {
 	trimedPattern := strings.TrimPrefix(pattern, "/")
-	if strings.IndexAny(trimedPattern[0:1], initials) != -1 {
+	if strings.ContainsAny(trimedPattern[0:1], initials) {
 		h.patterns.set(trimedPattern[0], newPatternForEqualizedPath(pattern))
 	} else {
 		h.otherPatterns.add(newPatternForEqualizedPath(pattern))
